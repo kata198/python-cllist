@@ -1628,12 +1628,12 @@ static PyObject* dllist_rindex(DLListObject *self, PyObject *value)
  *       or call _normalize_indexes
  *
  *    self - DLList to slice from
- *    start_idx    - Start of slicing (normalized)
- *    end_idx      - End of slicing (normalized)
+ *    idx_start    - Start of slicing (normalized)
+ *    idx_end      - End of slicing (normalized)
  *    step         - Slice step
  *    sliceLength  - Length of resulting slice. Pass -1 to calculate.
  */
-static PyObject *dllist_slice(DLListObject *self, Py_ssize_t start_idx, Py_ssize_t end_idx, Py_ssize_t step, Py_ssize_t sliceLength)
+static PyObject *dllist_slice(DLListObject *self, Py_ssize_t idx_start, Py_ssize_t idx_end, Py_ssize_t step, Py_ssize_t sliceLength)
 {
     DLListObject *ret;
     DLListNodeObject *cur;
@@ -1652,10 +1652,10 @@ static PyObject *dllist_slice(DLListObject *self, Py_ssize_t start_idx, Py_ssize
 
     if ( sliceLength == -1 )
     {
-        sliceLength = end_idx - start_idx; /* Reusing end_idx as max */
+        sliceLength = idx_end - idx_start; /* Reusing idx_end as max */
         if(step > 1 )
         {
-            sliceLength = sliceLength / step + ( end_idx % step ? 1 : 0 );
+            sliceLength = sliceLength / step + ( idx_end % step ? 1 : 0 );
         }
     }
 
@@ -1663,9 +1663,9 @@ static PyObject *dllist_slice(DLListObject *self, Py_ssize_t start_idx, Py_ssize
     if ( step > 1 )
     {
         Py_ssize_t tmp_slice_resize;
-        tmp_slice_resize = start_idx + (step * sliceLength);
-        if ( tmp_slice_resize < end_idx )
-            end_idx = tmp_slice_resize;
+        tmp_slice_resize = idx_start + (step * sliceLength);
+        if ( tmp_slice_resize < idx_end )
+            idx_end = tmp_slice_resize;
     }
 
 
@@ -1674,8 +1674,8 @@ static PyObject *dllist_slice(DLListObject *self, Py_ssize_t start_idx, Py_ssize
         return (PyObject *)ret;
 
 
-    diff_start_left = start_idx;
-    diff_end_right = self->size - 1 - end_idx;
+    diff_start_left = idx_start;
+    diff_end_right = self->size - 1 - idx_end;
 
     remaining = py_ssize_min(diff_start_left, diff_end_right);
     if (self->middle_idx != -1 )
@@ -1683,8 +1683,8 @@ static PyObject *dllist_slice(DLListObject *self, Py_ssize_t start_idx, Py_ssize
         Py_ssize_t diff_mid_left;
         Py_ssize_t diff_mid_right;
 
-        diff_mid_left = py_ssize_t_abs( self->middle_idx - start_idx );
-        diff_mid_right = py_ssize_t_abs ( end_idx - self->middle_idx );
+        diff_mid_left = py_ssize_t_abs( self->middle_idx - idx_start );
+        diff_mid_right = py_ssize_t_abs ( idx_end - self->middle_idx );
 
         remaining = py_ssize_min(remaining, diff_mid_left);
         remaining = py_ssize_min(remaining, diff_mid_right);
@@ -1692,7 +1692,7 @@ static PyObject *dllist_slice(DLListObject *self, Py_ssize_t start_idx, Py_ssize
         if ( remaining == diff_mid_left )
         {
             direction = 1;
-            if ( start_idx < self->middle_idx )
+            if ( idx_start < self->middle_idx )
             {
                 pre_walk_direction = -1;
             }
@@ -1706,15 +1706,15 @@ static PyObject *dllist_slice(DLListObject *self, Py_ssize_t start_idx, Py_ssize
         else if( remaining == diff_mid_right )
         {
             direction = -1;
-            if ( end_idx < self->middle_idx )
+            if ( idx_end < self->middle_idx )
             {
                 pre_walk_direction = -1;
-                remaining += calc_end_difference_step(start_idx, end_idx, step);
+                remaining += calc_end_difference_step(idx_start, idx_end, step);
             }
-            else if ( end_idx > self->middle_idx )
+            else if ( idx_end > self->middle_idx )
             {
                 pre_walk_direction = 1;
-                remaining -= calc_end_difference_step(start_idx, end_idx, step);
+                remaining -= calc_end_difference_step(idx_start, idx_end, step);
                 if ( remaining < 0 )
                 {
                     /* If here, we had to change direction because of step-end */
@@ -1725,7 +1725,7 @@ static PyObject *dllist_slice(DLListObject *self, Py_ssize_t start_idx, Py_ssize
             else
             {
                 pre_walk_direction = -1;
-                remaining += calc_end_difference_step(start_idx, end_idx, step);
+                remaining += calc_end_difference_step(idx_start, idx_end, step);
 
             }
 
@@ -1745,7 +1745,7 @@ static PyObject *dllist_slice(DLListObject *self, Py_ssize_t start_idx, Py_ssize
         {
             direction = -1;
             pre_walk_direction = -1;
-            remaining += calc_end_difference_step(start_idx, end_idx, step);
+            remaining += calc_end_difference_step(idx_start, idx_end, step);
             cur = (DLListNodeObject *)self->last;
         }
     }
@@ -1836,7 +1836,6 @@ static PyObject *dllist_slice(DLListObject *self, Py_ssize_t start_idx, Py_ssize
  */
 static PyObject *dllist_simpleslice(DLListObject *self, Py_ssize_t idx_start, Py_ssize_t idx_end)
 {
-    debugmsg("Calling simpleslice: %p %ld %ld\n", self, idx_start, idx_end);
     if( !_normalize_indexes(self->size, &idx_start, &idx_end) )
     {
         DLListObject *ret = (DLListObject *)dllist_new(DLListType, NULL, NULL);
