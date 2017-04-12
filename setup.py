@@ -4,8 +4,18 @@
 VERSION='1.0.1'
 
 import os
+import sys
 
-from distutils.core import setup, Extension
+if '--distutils' in sys.argv:
+    from distutils.core import setup, Extension
+    sys.argv.remove('--distutils')
+else:
+    try:
+        from setuptools import setup
+    except:
+        from distutils import Extension
+
+    from distutils.core import Extension
 
 sources = ['src/cllist.c',
            'src/dllist.c',

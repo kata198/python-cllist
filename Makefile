@@ -19,5 +19,5 @@ docs:
 	cd docs/_build/html && zip -r docs.zip *
 
 test:
-	python setup.py install --install-lib ./tests
+	PYTHONPATH="./tests:${PYTHONPATH}" python setup.py --distutils install --install-lib ./tests
 	python tests/llist_test.py
