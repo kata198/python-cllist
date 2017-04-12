@@ -5,10 +5,7 @@ VERSION='1.0.0'
 
 import os
 
-try:
-    from setuptools import setup, Extension
-except ImportError:
-    from distutils.core import setup, Extension
+from distutils.core import setup, Extension
 
 sources = ['src/cllist.c',
            'src/dllist.c',
@@ -27,7 +24,7 @@ if __name__ == '__main__':
     except Exception as e:
         long_description = 'Error reading description: ' + str(e)
 
-    setup(name='llist',
+    setup(name='cllist',
           description='C-implemented linked-list module for Python',
           long_description=long_description,
           author='Timothy Savannah, Adam Jakubek, Rafał Gałczyński',
