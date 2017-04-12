@@ -11,8 +11,8 @@
 
 #define LLIST_VERSION_MAJOR 1
 #define LLIST_VERSION_MINOR 0
-#define LLIST_VERSION_PATCH 0
-#define LLIST_VERSION_STR   ("1.0.0")
+#define LLIST_VERSION_PATCH 1
+#define LLIST_VERSION_STR   ("1.0.1")
 
 extern PyObject *mod_version;
 extern PyObject *mod_version_tuple;
