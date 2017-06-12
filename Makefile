@@ -1,6 +1,11 @@
-.PHONY: build clean docs install test
+.PHONY: build clean docs install test remake
 
-all: clean build test
+all:
+	make build
+
+remake:
+	make clean
+	make build
 
 build:
 	python setup.py build
@@ -18,6 +23,8 @@ docs:
 	cd docs && $(MAKE) $(MFLAGS) doctest html
 	cd docs/_build/html && zip -r docs.zip *
 
-test:
+test: build
 	PYTHONPATH="./tests:${PYTHONPATH}" python setup.py --distutils install --install-lib ./tests
 	python tests/llist_test.py
+
+check: test
