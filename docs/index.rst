@@ -1,12 +1,9 @@
-.. llist documentation master file, created by
-   sphinx-quickstart on Tue Dec 20 01:58:56 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. cllist documentation master file
 
-:mod:`llist` --- Linked list datatypes for Python
+:mod:`cllist` --- Linked list datatypes for Python
 =================================================
 
-.. module:: llist
+.. module:: cllist
    :synopsis: Linked list datatypes for Python
 
 .. moduleauthor:: Timothy Savannah <kata198@gmail.com>
@@ -17,9 +14,23 @@ This module implements linked list data structures.
 Currently two types of lists are supported: a doubly linked :class:`dllist`
 and a singly linked :class:`sllist`.
 
-All data types defined in this module support efficient O(1) insertion
-and removal of elements (except removal in :class:`sllist` which is O(n)).
-Random access to elements using index is O(n).
+
+Efficency / Complexity
+----------------------
+
+All data types defined in this module support efficient O(1) insertion.
+
+You should always choose to use a :class:`dllist` (double-linked list) over an :class:`sllist` for performance reasons.
+
+The :class:`dllist` implementation holds the traditional references to "start" and "end", as well as a unique implementation wherein the "middle" node is also tracked.
+
+This ensures that the worst-case time complexity for an operation in a :class:`dllist` is O( n/4 ), with average complexity for non-O(1) operations at O( n / 8 ).
+
+On the other hand, :class:`sllist` has many operations which are worst-case O(n), average access at O(n/2), and some operations (such as appending to the right) are O(n)!
+
+With :class:`dllist`, the shortest distance (from start, from middle, or from end, bi-directional) is alaways calculated before performing an operation, which minimizes the amount of nodes that have to be touched. 
+
+A dllist will outperform or at least be equal in performance to a native python list, depending on the usage scenario.
 
 
 :class:`dllist` objects
@@ -35,16 +46,28 @@ Random access to elements using index is O(n).
    .. attribute:: first
 
       First :class:`dllistnode` object in the list. `None` if list is empty.
+
+      This attribute is read-only.
+
+   .. attribute:: middle
+
+      Middle :class:`dllistnode` object in the list, if the list size is greater-than 10 elements, or `None` if the list has 10 or fewer elements.
+
+      This is a unique extension of the doubly-linked list unique to the "cllist" implementation,
+      and ensures that worst-case time for most operations is O( n/4 ) and average O(n / 8 ).
+
       This attribute is read-only.
 
    .. attribute:: last
 
       Last :class:`dllistnode` object in the list. `None` if list is empty.
+
       This attribute is read-only.
 
    .. attribute:: size
 
       Number of elements in the list. 0 if list is empty.
+
       This attribute is read-only.
 
    dllist objects also support the following methods (all methods below have
@@ -85,7 +108,6 @@ Random access to elements using index is O(n).
    .. method:: extendleft(iterable)
 
       Append elements from *iterable* to the left side of the list.
-      Note that elements will be appended in reversed order.
 
    .. method:: extendright(iterable)
 
@@ -115,16 +137,25 @@ Random access to elements using index is O(n).
 
       Raises :exc:`IndexError` if *index* is out of range.
 
-      This method has O(n) complexity, but most recently accessed node is
-      cached, so that accessing its neighbours is O(1).
-      Note that inserting/deleting a node in the middle of the list will
-      invalidate this cache.
+      This method has O(n/4) worst-case complexity, and averages O( n/8 ) [for n = list size] due to the use of "middle" and bi-directional walking in this implementation.
 
-   .. method:: pop()
+   .. method:: pop([index])
 
-      Remove and return an element's value from the right side of the list.
+      Remove and return the element's value from a given index. If *index* is not provided, will pop from the right side of the list.
 
       Raises :exc:`ValueError` if *self* is empty.
+
+   .. method:: index(value)
+
+      Returns the first index of a value
+
+      Raises :exc:`ValueError` if *value* is not present
+
+   .. method:: rindex(value)
+
+      Returns the last index of a valuea
+
+      Raises :exc:`ValueError` if *value* is not present
 
    .. method:: popleft()
 
@@ -156,19 +187,14 @@ Random access to elements using index is O(n).
 
       Raises :exc:`TypeError` if *n* is not an integer.
 
-      This method has O(n) time complexity (with regards to the size of
+      This method has the same time complexity as finding an element, thus averages out at O(n / 8 ) (with regards to the size of
       the list).
 
 
    In addition to these methods, :class:`dllist` supports iteration,
    ``cmp(lst1, lst2)``, rich comparison operators, constant time ``len(lst)``,
-   ``hash(lst)`` and subscript references ``lst[1234]`` for accessing elements
+   ``__contains__ (in operator)``, ``mappings``, ``slicing``, and subscript references ``lst[1234]`` for accessing elements
    by index.
-
-   Indexed access has O(n) complexity, but most recently accessed node is
-   cached, so that accessing its neighbours is O(1).
-   Note that inserting/deleting a node in the middle of the list will
-   invalidate this cache.
 
    Subscript references like ``v = lst[1234]`` return values stored in nodes.
    Negative indices are allowed (to count nodes from the right).
@@ -184,7 +210,7 @@ Random access to elements using index is O(n).
 
    .. doctest::
 
-      >>> from llist import dllist, dllistnode
+      >>> from cllist import dllist, dllistnode
 
       >>> empty_lst = dllist()          # create an empty list
       >>> print(empty_lst)
@@ -380,7 +406,7 @@ Random access to elements using index is O(n).
 
    .. doctest::
 
-      >>> from llist import dllist
+      >>> from cllist import dllist
       >>> lst = dllist([1, 2, 3])
       >>> for value in lst:
       ...     print(value * 2)
@@ -459,7 +485,6 @@ Random access to elements using index is O(n).
    .. method:: extendleft(iterable)
 
       Append elements from *iterable* to the left side of the list.
-      Note that elements will be appended in reversed order.
 
       This method has O(n) complexity (in the size of *iterable*).
 
@@ -507,13 +532,25 @@ Random access to elements using index is O(n).
 
       This method has O(n) complexity.
 
-   .. method:: pop()
+   .. method:: pop([index])
 
-      Remove and return an element's value from the right side of the list.
+      Remove and return the element's value from a given index. If *index* is not provided, will pop from the right side of the list.
 
       Raises :exc:`ValueError` if *self* is empty.
 
       This method has O(n) time complexity.
+
+   .. method:: index(value)
+
+      Returns the first index of a value
+
+      Raises :exc:`ValueError` if *value* is not present
+
+   .. method:: rindex(value)
+
+      Returns the last index of a valuea
+
+      Raises :exc:`ValueError` if *value* is not present
 
    .. method:: popleft()
 
@@ -555,7 +592,7 @@ Random access to elements using index is O(n).
 
    In addition to these methods, :class:`sllist` supports iteration,
    ``cmp(lst1, lst2)``, rich comparison operators, constant time ``len(lst)``,
-   ``hash(lst)`` and subscript references ``lst[1234]`` for accessing elements
+   ``__contains__ (in operator)``, ``mappings``, ``slicing``, and subscript references ``lst[1234]`` for accessing elements
    by index.
 
    Subscript references like ``v = lst[1234]`` return values stored in nodes.
@@ -572,7 +609,7 @@ Random access to elements using index is O(n).
 
    .. doctest::
 
-      >>> from llist import sllist, sllistnode
+      >>> from cllist import sllist, sllistnode
 
       >>> empty_lst = sllist()          # create an empty list
       >>> print(empty_lst)
@@ -762,7 +799,7 @@ Random access to elements using index is O(n).
 
    .. doctest::
 
-      >>> from llist import sllist
+      >>> from cllist import sllist
       >>> lst = sllist([1, 2, 3])
       >>> for value in lst:
       ...     print(value * 2)
