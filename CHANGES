@@ -1,3 +1,10 @@
+* cllist-1.1.0 - Jun 18 2017
+
+- Fixup the "docs" target
+- Fixup the "sphinx" docs, including adding some of the new methods and implementations, and also noting about my much-improved dllist impl, which has a worst-case O( n/4 ) and average-case O( n/8 ) complexity on all non-O(1) operations.
+- Minor improvements to passing around optimization options in Makefile
+
+
 * cllist-1.0.3 - Jun 18 2017
 
 - Some cleanups in the build process
