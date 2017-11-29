@@ -1321,6 +1321,7 @@ static PyObject* dllist_pop(DLListObject* self, PyObject *arg)
 static PyObject* dllist_remove(DLListObject* self, PyObject* arg)
 {
     DLListNodeObject* del_node;
+    DLListNodeObject* middle_node;
     PyObject* list_ref;
     PyObject* value;
 
@@ -1358,13 +1359,6 @@ static PyObject* dllist_remove(DLListObject* self, PyObject* arg)
     if (self->last == arg)
         self->last = del_node->prev;
 
-    --self->size;
-    if ( ! _middle_check_on_shrink(self) )
-    {
-        /* TODO: Optimize direction */
-        _middle_do_recalc(self);
-    }
-
     Py_INCREF(del_node->value);
     value = del_node->value;
 
@@ -1374,6 +1368,14 @@ static PyObject* dllist_remove(DLListObject* self, PyObject* arg)
     del_node->list_weakref = Py_None;
 
     dllistnode_delete(del_node);
+
+    --self->size;
+    middle_node = (DLListNodeObject *)self->middle;
+    if ( ! _middle_check_on_shrink(self) || del_node == middle_node )
+    {
+        /* TODO: Optimize direction */
+        _middle_do_recalc(self);
+    }
 
     return value;
 }
