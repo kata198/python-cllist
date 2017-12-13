@@ -982,14 +982,72 @@ static PyObject* _dllist_insert_internal(DLListObject* self, PyObject* val, PyOb
 
 static PyObject* dllist_insert(DLListObject* self, PyObject* args)
 {
+    PyObject* indexObject = NULL;
+    Py_ssize_t index;
     PyObject* val = NULL;
-    PyObject* ref_node = NULL;
+    PyObject* ref_node;
+    DLListNodeObject* new_node;
 
-    if (!PyArg_UnpackTuple(args, "insert", 1, 2, &val, &ref_node))
+    if (!PyArg_UnpackTuple(args, "insert", 2, 2, &indexObject, &val))
         /* TODO: set error string */
         return NULL;
 
-    return _dllist_insert_internal(self, val, ref_node);
+    if (!Py23Int_Check(indexObject))
+    {
+        PyErr_SetString(PyExc_TypeError, "Index must be an integer");
+        return NULL;
+    }
+
+    index = Py23Int_AsSsize_t(indexObject);
+
+
+    if ( self->size != 0 )
+    {
+        if ( index < self->size )
+        {
+            ref_node = (PyObject* )dllist_get_node_internal( self, index );
+
+            new_node = dllistnode_create(
+                ((DLListNodeObject*)ref_node)->prev,
+                ref_node, val, (PyObject*)self);
+
+            if (ref_node == self->first)
+                self->first = (PyObject*)new_node;
+
+            if (self->last == Py_None)
+                self->last = (PyObject*)new_node;
+        }
+        else
+        {
+            ref_node = self->last;
+
+            new_node = dllistnode_create(
+                ref_node,
+                NULL, val, (PyObject*)self);
+
+            self->last = (PyObject*)new_node;
+        }
+
+
+    }
+    else
+    {
+        new_node = dllistnode_create(NULL, NULL, val, (PyObject*)self);
+        self->first = self->last = (PyObject*)new_node;
+    }
+
+
+    ++self->size;
+    if( self->size > START_MIDDLE_AFTER ) {
+        /* TODO: Optimize by direction?
+            We can after the "insert" function is changed to support integer index,
+            but not with element insert
+        */
+        _middle_do_recalc(self);
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject* dllist_insertbefore(DLListObject* self, PyObject* args)
@@ -2057,7 +2115,7 @@ static PyMethodDef DLListMethods[] =
     { "extendright", (PyCFunction)dllist_extendright, METH_O,
       "Append elements from iterable at the right side of the list" },
     { "insert", (PyCFunction)dllist_insert, METH_VARARGS,
-      "Inserts element before node" },
+      "Inserts object before index" },
     { "insertbefore", (PyCFunction)dllist_insertbefore, METH_VARARGS,
       "Inserts element before node" },
     { "insertafter", (PyCFunction)dllist_insertafter, METH_VARARGS,

@@ -396,6 +396,39 @@ class testsllist(unittest.TestCase):
         self.assertRaises(TypeError, ll.insertbefore, 10, [])
         self.assertRaises(ValueError, ll.insertbefore, 10, sllistnode())
 
+    def test_insert_empty(self):
+        ll = sllist()
+        lst = []
+
+        ll.insert(0, 1)
+
+        self.assertEqual(ll.first.value, 1)
+        self.assertEqual(ll.last.value, 1)
+
+        lst.insert(0, 1)
+
+        self.assertEqual( lst, list(ll))
+
+    def test_insert(self):
+        
+        ll = sllist( list(range(5)) )
+        lst = list(range(5))
+
+        ll.insert(1, 99)
+        lst.insert(1, 99)
+        ll.insert(100, 55)
+        lst.insert(100, 55)
+        ll.insert(0, 2)
+        lst.insert(0, 2)
+        ll.insert(3, 1.5)
+        lst.insert(3, 1.5)
+        ll.insert(3, 15)
+        lst.insert(3, 15)
+        ll.insert(0, 14)
+        lst.insert(0, 14)
+
+        self.assertEqual(lst, list(ll))
+
     def test_append(self):
         ll = sllist(py23_xrange(4))
         ref = sllist([0, 1, 2, 3, 10])
@@ -1201,21 +1234,22 @@ class testdllist(unittest.TestCase):
         self.assertEqual(count, 0)
 
 
-    def test_insert_value(self):
+    def test_insertbefore_value(self):
         ll = dllist(py23_xrange(4))
-        ref = dllist([0, 1, 2, 3, 10])
-        prev = ll.nodeat(-1)
+        ref = dllist([0, 1, 2, 10, 3])
+        lastNode = ll.nodeat(-1)
+        prev = ll.nodeat(-2)
         arg_node = dllistnode(10)
-        new_node = ll.insert(arg_node)
+        new_node = ll.insertbefore(arg_node, lastNode)
         self.assertNotEqual(new_node, arg_node)
         self.assertEqual(new_node.value, 10)
         self.assertEqual(new_node.prev, prev)
-        self.assertEqual(new_node.next, None)
+        self.assertEqual(new_node.next, lastNode)
         self.assertEqual(prev.next, new_node)
-        self.assertEqual(new_node, ll.last)
+        self.assertEqual(new_node, ll.last.prev)
         self.assertEqual(ll, ref)
 
-    def test_insert_value_before(self):
+    def test_insertbefore_value_before(self):
         ll = dllist(py23_xrange(4))
         ref = dllist([0, 1, 10, 2, 3])
         prev = ll.nodeat(1)
@@ -1230,12 +1264,12 @@ class testdllist(unittest.TestCase):
         self.assertEqual(next.prev, new_node)
         self.assertEqual(ll, ref)
 
-    def test_insert_value_before_first(self):
+    def test_insertbefore_value_before_first(self):
         ll = dllist(py23_xrange(4))
         ref = dllist([10, 0, 1, 2, 3])
         next = ll.nodeat(0)
         arg_node = dllistnode(10)
-        new_node = ll.insert(arg_node, ll.nodeat(0))
+        new_node = ll.insertbefore(arg_node, ll.nodeat(0))
         self.assertNotEqual(new_node, arg_node)
         self.assertEqual(new_node.value, 10)
         self.assertEqual(new_node.prev, None)
@@ -1275,19 +1309,54 @@ class testdllist(unittest.TestCase):
 
     def test_insert_invalid_ref(self):
         ll = dllist()
-        self.assertRaises(TypeError, ll.insert, 10, 1)
-        self.assertRaises(TypeError, ll.insert, 10, 'abc')
-        self.assertRaises(TypeError, ll.insert, 10, [])
-        self.assertRaises(ValueError, ll.insert, 10, dllistnode())
+        self.assertRaises(TypeError, ll.insertbefore, 10, 1)
+        self.assertRaises(TypeError, ll.insertbefore, 10, 'abc')
+        self.assertRaises(TypeError, ll.insertbefore, 10, [])
+        self.assertRaises(ValueError, ll.insertbefore, 10, dllistnode())
 
     def test_insert_ref_value(self):
         ll = dllist([1, 2, 3, 4, 5])
 
-        ll.insert(2.5, 3)
+        ll.insertbefore(2.5, 3)
         self.assertEqual( [1, 2, 2.5, 3, 4, 5], list(ll) )
 
-        ll.insert(0, 1)
+        ll.insertbefore(0, 1)
         self.assertEqual( [0, 1, 2, 2.5, 3, 4, 5], list(ll) )
+
+
+    def test_insert_empty(self):
+        ll = dllist()
+        lst = []
+
+        ll.insert(0, 1)
+
+        self.assertEqual(ll.first.value, 1)
+        self.assertEqual(ll.last.value, 1)
+
+        lst.insert(0, 1)
+
+        self.assertEqual( lst, list(ll))
+
+    def test_insert(self):
+        
+        ll = dllist( list(range(5)) )
+        lst = list(range(5))
+
+        ll.insert(1, 99)
+        lst.insert(1, 99)
+        ll.insert(100, 55)
+        lst.insert(100, 55)
+        ll.insert(0, 2)
+        lst.insert(0, 2)
+        ll.insert(3, 1.5)
+        lst.insert(3, 1.5)
+        ll.insert(3, 15)
+        lst.insert(3, 15)
+        ll.insert(0, 14)
+        lst.insert(0, 14)
+
+        self.assertEqual(lst, list(ll))
+
 
     def test_append(self):
         ll = dllist(py23_xrange(4))

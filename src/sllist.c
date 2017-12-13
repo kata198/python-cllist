@@ -17,6 +17,8 @@
 #endif
 
 static PyObject* sllist_findnode(SLListObject *self, PyObject *value);
+static SLListNodeObject* sllist_get_node_internal(SLListObject* self,
+                                                  Py_ssize_t pos);
 
 static SLListNodeObject* sllistnode_create(PyObject* next,
                                            PyObject* value,
@@ -749,6 +751,7 @@ static PyObject* sllist_insertbefore(SLListObject* self, PyObject* args)
     return _sllist_insertbefore_internal(self, value, after);
 }
 
+#if 0
 static PyObject* sllist_insert(SLListObject* self, PyObject* args)
 {
 
@@ -765,6 +768,83 @@ static PyObject* sllist_insert(SLListObject* self, PyObject* args)
     }
 
     return _sllist_insertbefore_internal(self, value, after);
+}
+
+#endif
+
+static PyObject* sllist_insert(SLListObject* self, PyObject* args)
+{
+    PyObject* indexObject = NULL;
+    Py_ssize_t index;
+    PyObject* val = NULL;
+    PyObject* ref_node;
+    SLListNodeObject* new_node;
+
+    if (!PyArg_UnpackTuple(args, "insert", 2, 2, &indexObject, &val))
+        /* TODO: set error string */
+        return NULL;
+
+    if (!Py23Int_Check(indexObject))
+    {
+        PyErr_SetString(PyExc_TypeError, "Index must be an integer");
+        return NULL;
+    }
+
+    index = Py23Int_AsSsize_t(indexObject);
+
+
+    if ( self->size != 0 )
+    {
+        if ( index < self->size )
+        {
+            if ( index == 0 )
+            {
+                new_node = sllistnode_create(self->first,
+                                             val,
+                                             (PyObject*)self);
+
+                self->first = (PyObject*)new_node;
+            }
+            else
+            {
+                SLListNodeObject *prev_node;
+
+                prev_node = sllist_get_node_internal(self, index - 1);
+                ref_node = (PyObject *) prev_node->next;
+
+                new_node = sllistnode_create(
+                    ref_node, val, (PyObject*)self);
+
+                prev_node->next = (PyObject*)new_node;
+
+                if (ref_node == self->first)
+                    self->first = (PyObject*)new_node;
+            }
+        }
+        else
+        {
+            new_node = sllistnode_create(Py_None,
+                                         val,
+                                         (PyObject*)self);
+
+            ((SLListNodeObject *)self->last)->next = (PyObject*)new_node;
+
+            self->last = (PyObject*)new_node;
+        }
+
+
+    }
+    else
+    {
+        new_node = sllistnode_create(Py_None, val, (PyObject*)self);
+        self->first = self->last = (PyObject*)new_node;
+    }
+
+
+    ++self->size;
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject* sllist_extendleft(SLListObject* self, PyObject* sequence)
@@ -1739,7 +1819,7 @@ static PyMethodDef SLListMethods[] =
       "Inserts element before node" },
 
     { "insert", (PyCFunction)sllist_insert, METH_VARARGS,
-      "Inserts element before node" },
+      "Inserts object before index" },
 
     { "nodeat", (PyCFunction)sllist_node_at, METH_O,
       "Return node at index" },
