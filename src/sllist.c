@@ -685,11 +685,7 @@ static PyObject* _sllist_insertbefore_internal(SLListObject* self, PyObject* val
     SLListNodeObject* new_node;
     SLListNodeObject* prev;
 
-    if ( after == NULL )
-    {
-        after = self->last;
-    }
-    else if (!PyObject_TypeCheck(after, SLListNodeType))
+    if (!PyObject_TypeCheck(after, SLListNodeType))
     {
         after = sllist_findnode(self, after);
         if ( !after )
