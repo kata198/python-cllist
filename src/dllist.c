@@ -1954,6 +1954,8 @@ static PyMethodDef DLListMethods[] =
       "Append elements from iterable at the right side of the list" },
     { "insert", (PyCFunction)dllist_insert, METH_VARARGS,
       "Inserts element before node" },
+    { "insertbefore", (PyCFunction)dllist_insert, METH_VARARGS,
+      "Inserts element before node" },
     { "index", (PyCFunction)dllist_index, METH_O,
       "Returns the first index of a value" },
     { "findnode", (PyCFunction)dllist_findnode, METH_O,

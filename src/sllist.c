@@ -1715,6 +1715,9 @@ static PyMethodDef SLListMethods[] =
     { "insertbefore", (PyCFunction)sllist_insertbefore, METH_VARARGS,
       "Inserts element before node" },
 
+    { "insert", (PyCFunction)sllist_insertbefore, METH_VARARGS,
+      "Inserts element before node" },
+
     { "nodeat", (PyCFunction)sllist_node_at, METH_O,
       "Return node at index" },
 
