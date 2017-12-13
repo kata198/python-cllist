@@ -1,3 +1,16 @@
+* cllist-1.2.0 - ??? ?? ????
+
+- Some documentation cleanups
+
+- Add "findnode" and "rfindnode" methods to dllist and sllist. These operate the same as "index" and "rindex", but instead of returning the index they return the nodes themselves.
+
+- On dllist, "insert" method can now take a value as the optional second argument (insert before node) as oppose to always requiring a node object. This simplifies what formerly required:
+
+  dl.insert(value, dl.nodeat( dl.index( beforeThisValue) ) )
+
+- On sllist, "insertbefore" and "insertafter" methods now can take a value as the optional second argument as oppose to always requiring a node object.
+
+
 * cllist-1.1.0 - Jun 18 2017
 
 - Fixup the "docs" target
