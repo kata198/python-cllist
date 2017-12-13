@@ -678,20 +678,18 @@ static PyObject* sllist_insertafter(SLListObject* self, PyObject* arg)
 
 /* TODO: Fork out "sllist_insert" and make second arg optional, but required in "insertbefore" */
 
-static PyObject* sllist_insertbefore(SLListObject* self, PyObject* arg)
+static PyObject* _sllist_insertbefore_internal(SLListObject* self, PyObject* value, PyObject *after)
 {
-
-    PyObject* value = NULL;
-    PyObject* after = NULL;
     PyObject* list_ref;
 
     SLListNodeObject* new_node;
     SLListNodeObject* prev;
 
-    if (!PyArg_UnpackTuple(arg, "insertbefore", 2, 2, &value, &after))
-        return NULL;
-
-    if (!PyObject_TypeCheck(after, SLListNodeType))
+    if ( after == NULL )
+    {
+        after = self->last;
+    }
+    else if (!PyObject_TypeCheck(after, SLListNodeType))
     {
         after = sllist_findnode(self, after);
         if ( !after )
@@ -743,6 +741,35 @@ static PyObject* sllist_insertbefore(SLListObject* self, PyObject* arg)
     return (PyObject*)new_node;
 }
 
+static PyObject* sllist_insertbefore(SLListObject* self, PyObject* args)
+{
+
+    PyObject* value = NULL;
+    PyObject* after = NULL;
+
+    if (!PyArg_UnpackTuple(args, "insertbefore", 2, 2, &value, &after))
+        return NULL;
+
+    return _sllist_insertbefore_internal(self, value, after);
+}
+
+static PyObject* sllist_insert(SLListObject* self, PyObject* args)
+{
+
+    PyObject* value = NULL;
+    PyObject* after = NULL;
+
+    if (!PyArg_UnpackTuple(args, "insert", 1, 2, &value, &after))
+        return NULL;
+
+    if ( after == NULL )
+    {
+        /* If no "after" provided, this should appendright */
+        return sllist_appendright(self, value);
+    }
+
+    return _sllist_insertbefore_internal(self, value, after);
+}
 
 static PyObject* sllist_extendleft(SLListObject* self, PyObject* sequence)
 {
@@ -1715,7 +1742,7 @@ static PyMethodDef SLListMethods[] =
     { "insertbefore", (PyCFunction)sllist_insertbefore, METH_VARARGS,
       "Inserts element before node" },
 
-    { "insert", (PyCFunction)sllist_insertbefore, METH_VARARGS,
+    { "insert", (PyCFunction)sllist_insert, METH_VARARGS,
       "Inserts element before node" },
 
     { "nodeat", (PyCFunction)sllist_node_at, METH_O,

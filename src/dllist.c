@@ -905,16 +905,9 @@ static PyObject* dllist_appendright(DLListObject* self, PyObject* arg)
     return (PyObject*)new_node;
 }
 
-/* TODO: For "insertbefore" and "insertafter", fork the method and require the second argument. */
-
-static PyObject* dllist_insert(DLListObject* self, PyObject* args)
+static PyObject* _dllist_insert_internal(DLListObject* self, PyObject* val, PyObject *ref_node)
 {
-    PyObject* val = NULL;
-    PyObject* ref_node = NULL;
     DLListNodeObject* new_node;
-
-    if (!PyArg_UnpackTuple(args, "insert", 1, 2, &val, &ref_node))
-        return NULL;
 
     if (PyObject_TypeCheck(val, DLListNodeType))
         val = ((DLListNodeObject*)val)->value;
@@ -987,6 +980,32 @@ static PyObject* dllist_insert(DLListObject* self, PyObject* args)
     return (PyObject*)new_node;
 }
 
+static PyObject* dllist_insert(DLListObject* self, PyObject* args)
+{
+    PyObject* val = NULL;
+    PyObject* ref_node = NULL;
+
+    if (!PyArg_UnpackTuple(args, "insert", 1, 2, &val, &ref_node))
+        /* TODO: set error string */
+        return NULL;
+
+    return _dllist_insert_internal(self, val, ref_node);
+}
+
+static PyObject* dllist_insertbefore(DLListObject* self, PyObject* args)
+{
+    PyObject* val = NULL;
+    PyObject* ref_node = NULL;
+
+    if (!PyArg_UnpackTuple(args, "insertbefore", 2, 2, &val, &ref_node))
+        /* TODO: set error string */
+        return NULL;
+
+    return _dllist_insert_internal(self, val, ref_node);
+}
+
+
+
 /* TODO: Unify the "insertbefore" and "insertafter" methods? They barely differ */
 static PyObject* dllist_insertafter(DLListObject* self, PyObject* args)
 {
@@ -994,7 +1013,7 @@ static PyObject* dllist_insertafter(DLListObject* self, PyObject* args)
     PyObject* ref_node = NULL;
     DLListNodeObject* new_node;
 
-    if (!PyArg_UnpackTuple(args, "insertafter", 1, 2, &val, &ref_node))
+    if (!PyArg_UnpackTuple(args, "insertafter", 2, 2, &val, &ref_node))
         return NULL;
 
     if (PyObject_TypeCheck(val, DLListNodeType))
@@ -2039,7 +2058,7 @@ static PyMethodDef DLListMethods[] =
       "Append elements from iterable at the right side of the list" },
     { "insert", (PyCFunction)dllist_insert, METH_VARARGS,
       "Inserts element before node" },
-    { "insertbefore", (PyCFunction)dllist_insert, METH_VARARGS,
+    { "insertbefore", (PyCFunction)dllist_insertbefore, METH_VARARGS,
       "Inserts element before node" },
     { "insertafter", (PyCFunction)dllist_insertafter, METH_VARARGS,
       "Inserts element after node" },
