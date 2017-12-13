@@ -153,7 +153,7 @@ A dllist will outperform or at least be equal in performance to a native python 
 
    .. method:: rindex(value)
 
-      Returns the last index of a valuea
+      Returns the last index of a value
 
       Raises :exc:`ValueError` if *value* is not present
 
@@ -242,14 +242,14 @@ A dllist will outperform or at least be equal in performance to a native python 
       >>> print(lst.nodeat(2))
       dllistnode(3)
 
-      >>> print(lst[0])                 # access elements by index
+      >>> print(lst[0])                 # access value by index
       1
       >>> print(lst[1])
       2
       >>> print(lst[2])
       3
 
-      >>> node = lst.first              # get the first node (same as lst[0])
+      >>> node = lst.first              # get the first node (same as lst.nodeat(0))
       >>> print(node)
       dllistnode(1)
 
@@ -274,11 +274,13 @@ A dllist will outperform or at least be equal in performance to a native python 
       <dllistnode(4)>
       >>> print(lst)
       dllist([1, 2, 3, 4])
+
       >>> new_node = dllistnode(5)
       >>> lst.appendright(new_node)     # append value from a node
       <dllistnode(5)>
       >>> print(lst)
       dllist([1, 2, 3, 4, 5])
+      
       >>> lst.appendleft(0)             # append value to the left side of the list
       <dllistnode(0)>
       >>> print(lst)
@@ -287,6 +289,7 @@ A dllist will outperform or at least be equal in performance to a native python 
       >>> lst.extendright([6, 7, 8])    # right-extend list with elements from iterable
       >>> print(lst)
       dllist([0, 1, 2, 3, 4, 5, 6, 7, 8])
+
       >>> lst.extendleft([-1, -2, -3])  # left-extend list with elements from iterable
       >>> print(lst)
       dllist([-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8])
@@ -297,6 +300,7 @@ A dllist will outperform or at least be equal in performance to a native python 
       <dllistnode(1.5)>
       >>> print(lst)
       dllist([0, 1, 1.5, 2, 3, 4, 5])
+
       >>> lst.insert(6)                 # append value to the right side of the list
       <dllistnode(6)>
       >>> print(lst)
@@ -306,15 +310,18 @@ A dllist will outperform or at least be equal in performance to a native python 
       0
       >>> print(lst)
       dllist([1, 1.5, 2, 3, 4, 5, 6])
+
       >>> lst.popright()                # remove rightmost node from the list
       6
       >>> print(lst)
       dllist([1, 1.5, 2, 3, 4, 5])
+
       >>> node = lst.nodeat(1)
       >>> lst.remove(node)              # remove 2nd node from the list
       1.5
       >>> print(lst)
       dllist([1, 2, 3, 4, 5])
+      
       >>> foreign_node = dllistnode()   # create an unassigned node
       >>> lst.remove(foreign_node)      # try to remove node not present in the list
       Traceback (most recent call last):
@@ -323,15 +330,17 @@ A dllist will outperform or at least be equal in performance to a native python 
         File "<doctest default[39]>", line 1, in <module>
           lst.remove(foreign_node)
       ValueError: dllistnode belongs to another list
-      >>> lst.clear()
+
+      >>> lst.clear()                   # Remove all elements (clear) list
       >>> print(lst)
       dllist()
 
-      >>> lst = dllist([1, 2, 3, 4, 5])
+      >>> lst = dllist([1, 2, 3, 4, 5])  # Rotate all values right by two
       >>> lst.rotate(2)
       >>> print(lst)
       dllist([4, 5, 1, 2, 3])
-      >>> lst = dllist([1, 2, 3, 4, 5])
+
+      >>> lst = dllist([1, 2, 3, 4, 5])  # Rotate all values left by two
       >>> lst.rotate(-2)
       >>> print(lst)
       dllist([3, 4, 5, 1, 2])
@@ -351,12 +360,12 @@ A dllist will outperform or at least be equal in performance to a native python 
 
       >>> lst1 = dllist([1, 2, 3, 4])   # extending lists
       >>> lst2 = dllist([5, 6, 7, 8])
-      >>> ext_lst = lst1 + lst2
+      >>> ext_lst = lst1 + lst2         # Plus/Add operator
       >>> print(ext_lst)
       dllist([1, 2, 3, 4, 5, 6, 7, 8])
 
       >>> lst = dllist([1, 2, 3, 4])
-      >>> ext_lst = lst * 2
+      >>> ext_lst = lst * 2             # Multiply operator
       >>> print(ext_lst)
       dllist([1, 2, 3, 4, 1, 2, 3, 4])
 
@@ -548,7 +557,7 @@ A dllist will outperform or at least be equal in performance to a native python 
 
    .. method:: rindex(value)
 
-      Returns the last index of a valuea
+      Returns the last index of a value
 
       Raises :exc:`ValueError` if *value* is not present
 
