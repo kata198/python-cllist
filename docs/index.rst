@@ -118,6 +118,7 @@ A dllist will outperform or at least be equal in performance to a native python 
 
       Add *x* to the right side of the list if *before* is not specified,
       or insert *x* to the left side of :class:`dllistnode` *before*.
+      
       Return inserted :class:`dllistnode`.
 
       Argument *x* might be a :class:`dllistnode`. In that case a new
@@ -382,11 +383,15 @@ A dllist will outperform or at least be equal in performance to a native python 
 
    .. attribute:: next
 
-      Next node in the list. This attribute is read-only.
+      Next node in the list.
+      
+      This attribute is read-only.
 
    .. attribute:: prev
 
-      Previous node in the list. This attribute is read-only.
+      Previous node in the list.
+      
+      This attribute is read-only.
 
    .. attribute:: value
 
@@ -614,7 +619,7 @@ A dllist will outperform or at least be equal in performance to a native python 
    ``lst1 + lst2`` and ``lst * num`` syntax (including in-place ``+=``
    and ``*=`` variants of these operators).
 
-   Example:
+   **Examples:**
 
    .. doctest::
 
@@ -650,7 +655,7 @@ A dllist will outperform or at least be equal in performance to a native python 
       >>> print(lst.nodeat(2))
       sllistnode(3)
 
-      >>> print(lst[0])                 # access elements by index
+      >>> print(lst[0])                 # access values by index
       1
       >>> print(lst[1])
       2
@@ -680,11 +685,13 @@ A dllist will outperform or at least be equal in performance to a native python 
       <sllistnode(4)>
       >>> print(lst)
       sllist([1, 2, 3, 4])
+
       >>> new_node = sllistnode(5)
       >>> lst.appendright(new_node)     # append value from a node
       <sllistnode(5)>
       >>> print(lst)
       sllist([1, 2, 3, 4, 5])
+
       >>> lst.appendleft(0)             # append value to the left side of the list
       <sllistnode(0)>
       >>> print(lst)
@@ -693,6 +700,7 @@ A dllist will outperform or at least be equal in performance to a native python 
       >>> lst.extendright([6, 7, 8])    # right-extend list with elements from iterable
       >>> print(lst)
       sllist([0, 1, 2, 3, 4, 5, 6, 7, 8])
+
       >>> lst.extendleft([-1, -2, -3])  # left-extend list with elements from iterable
       >>> print(lst)
       sllist([-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8])
@@ -712,15 +720,18 @@ A dllist will outperform or at least be equal in performance to a native python 
       0
       >>> print(lst)
       sllist([1, 1.5, 2, 2.5, 3, 4, 5])
+
       >>> lst.popright()                # remove rightmost node from the list
       5
       >>> print(lst)
       sllist([1, 1.5, 2, 2.5, 3, 4])
+
       >>> node = lst.nodeat(1)
       >>> lst.remove(node)              # remove 2nd node from the list
       1.5
       >>> print(lst)
       sllist([1, 2, 2.5, 3, 4])
+
       >>> foreign_node = sllistnode()   # create an unassigned node
       >>> lst.remove(foreign_node)      # try to remove node not present in the list
       Traceback (most recent call last):
@@ -734,15 +745,16 @@ A dllist will outperform or at least be equal in performance to a native python 
       sllist()
 
       >>> lst = sllist([1, 2, 3, 4, 5])
-      >>> lst.rotate(2)
+      >>> lst.rotate(2)                  # Rotate values 2 to the right
       >>> print(lst)
       sllist([4, 5, 1, 2, 3])
+
       >>> lst = sllist([1, 2, 3, 4, 5])
-      >>> lst.rotate(-2)
+      >>> lst.rotate(-2)                 # Rotate values 2 to the left
       >>> print(lst)
       sllist([3, 4, 5, 1, 2])
 
-      >>> sllist() == sllist([])        # list comparison (lexicographical order)
+      >>> sllist() == sllist([])         # list comparison (lexicographical order)
       True
       >>> sllist() != sllist([])
       False
@@ -757,12 +769,12 @@ A dllist will outperform or at least be equal in performance to a native python 
 
       >>> lst1 = sllist([1, 2, 3, 4])   # extending lists
       >>> lst2 = sllist([5, 6, 7, 8])
-      >>> ext_lst = lst1 + lst2
+      >>> ext_lst = lst1 + lst2         # Plus/Add operator
       >>> print(ext_lst)
       sllist([1, 2, 3, 4, 5, 6, 7, 8])
 
       >>> lst = sllist([1, 2, 3, 4])
-      >>> ext_lst = lst * 2
+      >>> ext_lst = lst * 2             # Multiply operator
       >>> print(ext_lst)
       sllist([1, 2, 3, 4, 1, 2, 3, 4])
 
@@ -804,7 +816,7 @@ A dllist will outperform or at least be equal in performance to a native python 
    directly yield values stored in nodes, not :class:`sllistnode`
    objects.
 
-   Example:
+   **Examples:**
 
    .. doctest::
 
