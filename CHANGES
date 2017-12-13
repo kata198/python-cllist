@@ -4,17 +4,19 @@
 
 - Add "findnode" and "rfindnode" methods to dllist and sllist. These operate the same as "index" and "rindex", but instead of returning the index they return the nodes themselves.
 
-- On dllist, "insert" method can now take a value as the optional second argument (insert before node) as oppose to always requiring a node object. This simplifies what formerly required:
+- On dllist, "insertbefore" method can now take a value as the optional second argument (insert before node) as oppose to always requiring a node object. This simplifies what formerly required:
 
-  dl.insert(value, dl.nodeat( dl.index( beforeThisValue) ) )
+  dl.insertbefore(value, dl.nodeat( dl.index( beforeThisValue) ) )
+
+ becomes:
+ 
+  dl.insertbefore(value, beforeThisValue)
 
 - On sllist, "insertbefore" and "insertafter" methods now can take a value as the optional second argument as oppose to always requiring a node object.
 
-- Add "insertbefore" as an alias of "insert" for dllist, except "insertbefore" requires two args, versus "insert" which if second arg is not provided or is None works same as append.
-
 - Implement "insertafter" method of dllist
 
-- Add "insert" as an alias for "insertbefore" for sllist, except "insertbefore" requires 2 args, and "insert" with 1 arg is just an alias for appendright Now llist and dllist share a common "insert" interface
+- Add "insert" method to sllist, and change "insert" method on dllist to match python list interface (index, object).
 
 
 * cllist-1.1.0 - Jun 18 2017
