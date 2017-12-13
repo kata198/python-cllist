@@ -905,6 +905,8 @@ static PyObject* dllist_appendright(DLListObject* self, PyObject* arg)
     return (PyObject*)new_node;
 }
 
+/* TODO: For "insertbefore" and "insertafter", fork the method and require the second argument. */
+
 static PyObject* dllist_insert(DLListObject* self, PyObject* args)
 {
     PyObject* val = NULL;

@@ -676,7 +676,7 @@ static PyObject* sllist_insertafter(SLListObject* self, PyObject* arg)
     return (PyObject*)new_node;
 }
 
-/* TODO: Add sllist_insert method */
+/* TODO: Fork out "sllist_insert" and make second arg optional, but required in "insertbefore" */
 
 static PyObject* sllist_insertbefore(SLListObject* self, PyObject* arg)
 {
