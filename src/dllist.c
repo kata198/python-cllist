@@ -985,6 +985,89 @@ static PyObject* dllist_insert(DLListObject* self, PyObject* args)
     return (PyObject*)new_node;
 }
 
+/* TODO: Unify the "insertbefore" and "insertafter" methods? They barely differ */
+static PyObject* dllist_insertafter(DLListObject* self, PyObject* args)
+{
+    PyObject* val = NULL;
+    PyObject* ref_node = NULL;
+    DLListNodeObject* new_node;
+
+    if (!PyArg_UnpackTuple(args, "insertafter", 1, 2, &val, &ref_node))
+        return NULL;
+
+    if (PyObject_TypeCheck(val, DLListNodeType))
+        val = ((DLListNodeObject*)val)->value;
+
+    if (ref_node == NULL || ref_node == Py_None)
+    {
+        /* append item at the end of the list */
+        new_node = dllistnode_create(self->last, NULL, val, (PyObject*)self);
+
+        self->last = (PyObject*)new_node;
+
+        if (self->first == Py_None)
+            self->first = (PyObject*)new_node;
+    }
+    else
+    {
+        PyObject* list_ref;
+
+        /* insert item after ref_node */
+        if (!PyObject_TypeCheck(ref_node, DLListNodeType))
+        {
+            ref_node = dllist_findnode(self, ref_node);
+            if ( ref_node == NULL || ref_node == Py_None)
+            {
+                PyErr_SetString(PyExc_TypeError,
+                    "ref_node argument must be a dllistnode or a value contained in the list");
+                return NULL;
+            }
+        }
+
+        else if (((DLListNodeObject*)ref_node)->list_weakref == Py_None)
+        {
+            PyErr_SetString(PyExc_ValueError,
+                "dllistnode does not belong to a list");
+            return NULL;
+        }
+
+        list_ref = PyWeakref_GetObject(
+            ((DLListNodeObject*)ref_node)->list_weakref);
+        /* TODO: Group this in the "else" above, as always true when not else. */
+        if (list_ref != (PyObject*)self)
+        {
+            PyErr_SetString(PyExc_ValueError,
+                "dllistnode belongs to another list");
+            return NULL;
+        }
+
+        new_node = dllistnode_create(
+            ref_node,
+            ((DLListNodeObject*)ref_node)->next,
+            val, (PyObject*)self);
+
+        if (ref_node == self->last)
+            self->last = (PyObject*)new_node;
+
+        if (self->first == Py_None)
+            self->first = (PyObject*)new_node;
+
+    }
+
+    ++self->size;
+    if( self->size > START_MIDDLE_AFTER ) {
+        /* TODO: Optimize by direction?
+            We can after the "insert" function is changed to support integer index,
+            but not with element insert
+        */
+        _middle_do_recalc(self);
+    }
+
+
+    Py_INCREF((PyObject*)new_node);
+    return (PyObject*)new_node;
+}
+
 static PyObject* dllist_extendleft(DLListObject* self, PyObject* sequence)
 {
     Py_ssize_t i = 0;
@@ -1956,6 +2039,8 @@ static PyMethodDef DLListMethods[] =
       "Inserts element before node" },
     { "insertbefore", (PyCFunction)dllist_insert, METH_VARARGS,
       "Inserts element before node" },
+    { "insertafter", (PyCFunction)dllist_insertafter, METH_VARARGS,
+      "Inserts element after node" },
     { "index", (PyCFunction)dllist_index, METH_O,
       "Returns the first index of a value" },
     { "findnode", (PyCFunction)dllist_findnode, METH_O,

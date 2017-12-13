@@ -1200,6 +1200,7 @@ class testdllist(unittest.TestCase):
             count += 1
         self.assertEqual(count, 0)
 
+
     def test_insert_value(self):
         ll = dllist(py23_xrange(4))
         ref = dllist([0, 1, 2, 3, 10])
@@ -1220,7 +1221,7 @@ class testdllist(unittest.TestCase):
         prev = ll.nodeat(1)
         next = ll.nodeat(2)
         arg_node = dllistnode(10)
-        new_node = ll.insert(arg_node, ll.nodeat(2))
+        new_node = ll.insertbefore(arg_node, ll.nodeat(2))
         self.assertNotEqual(new_node, arg_node)
         self.assertEqual(new_node.value, 10)
         self.assertEqual(new_node.prev, prev)
@@ -1241,6 +1242,35 @@ class testdllist(unittest.TestCase):
         self.assertEqual(new_node.next, next)
         self.assertEqual(next.prev, new_node)
         self.assertEqual(new_node, ll.first)
+        self.assertEqual(ll, ref)
+
+    def test_insert_value_after(self):
+        ll = dllist(py23_xrange(4))
+        ref = dllist([0, 1, 2, 10, 3])
+        prev = ll.nodeat(2)
+        next = ll.nodeat(3)
+        arg_node = dllistnode(10)
+        new_node = ll.insertafter(arg_node, ll.nodeat(2))
+        self.assertNotEqual(new_node, arg_node)
+        self.assertEqual(new_node.value, 10)
+        self.assertEqual(new_node.prev, prev)
+        self.assertEqual(new_node.next, next)
+        self.assertEqual(prev.next, new_node)
+        self.assertEqual(next.prev, new_node)
+        self.assertEqual(ll, ref)
+
+    def test_insert_value_after_last(self):
+        ll = dllist(py23_xrange(4))
+        ref = dllist([0, 1, 2, 3, 10])
+        prev = ll.nodeat(len(ll)-1)
+        arg_node = dllistnode(10)
+        new_node = ll.insertafter(arg_node, ll.nodeat(len(ll)-1))
+        self.assertNotEqual(new_node, arg_node)
+        self.assertEqual(new_node.value, 10)
+        self.assertEqual(new_node.prev, prev)
+        self.assertEqual(new_node.next, None)
+        self.assertEqual(prev.next, new_node)
+        self.assertEqual(new_node, ll.last)
         self.assertEqual(ll, ref)
 
     def test_insert_invalid_ref(self):
