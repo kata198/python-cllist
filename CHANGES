@@ -10,11 +10,12 @@
 
 - On sllist, "insertbefore" and "insertafter" methods now can take a value as the optional second argument as oppose to always requiring a node object.
 
-- Add "insertbefore" as an alias of "insert" for dllist
+- Add "insertbefore" as an alias of "insert" for dllist, except "insertbefore" requires two args, versus "insert" which if second arg is not provided or is None works same as append.
 
 - Implement "insertafter" method of dllist
 
-- Add "insert" as an alias for "insertbefore" for llist. Now llist and dllist share a common "insert" interface
+- Add "insert" as an alias for "insertbefore" for sllist, except "insertbefore" requires 2 args, and "insert" with 1 arg is just an alias for appendright Now llist and dllist share a common "insert" interface
+
 
 * cllist-1.1.0 - Jun 18 2017
 
