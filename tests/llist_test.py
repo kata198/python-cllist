@@ -313,14 +313,26 @@ class testsllist(unittest.TestCase):
         self.assertEqual(None, None)
 
     def test_insert_after(self):
+        # Test insertafter with a node as reference
         ll = sllist([1, 3, '123'])
         ll.insertafter(100, ll.first)
         self.assertEqual([1, 100, 3, '123'], list(ll))
 
+        # Test insertafter with a value as reference
+        ll = sllist([1, 3, '123'])
+        ll.insertafter(4, 3)
+        self.assertEqual([1, 3, 4, '123'], list(ll))
+
     def test_insert_before(self):
+        # Test insertbefore with a node as reference
         ll = sllist([1, 3, '123'])
         ll.insertbefore(100, ll.first)
         self.assertEqual([100, 1, 3, '123'], list(ll))
+
+        # Test insertbefore with a value as reference
+        ll = sllist([1, 3, '123'])
+        ll.insertbefore(2, 3)
+        self.assertEqual([1, 2, 3, '123'], list(ll))
 
     def test_insert_value_after(self):
         ll = sllist(py23_xrange(4))
@@ -375,11 +387,11 @@ class testsllist(unittest.TestCase):
 
     def test_insert_invalid_ref(self):
         ll = sllist([1, 2, 3, 4])
-        self.assertRaises(TypeError, ll.insertafter, 10, 1)
+        self.assertRaises(TypeError, ll.insertafter, 10, 5)
         self.assertRaises(TypeError, ll.insertafter, 10, 'abc')
         self.assertRaises(TypeError, ll.insertafter, 10, [])
         self.assertRaises(ValueError, ll.insertafter, 10, sllistnode())
-        self.assertRaises(TypeError, ll.insertbefore, 10, 1)
+        self.assertRaises(TypeError, ll.insertbefore, 10, 5)
         self.assertRaises(TypeError, ll.insertbefore, 10, 'abc')
         self.assertRaises(TypeError, ll.insertbefore, 10, [])
         self.assertRaises(ValueError, ll.insertbefore, 10, sllistnode())
@@ -870,6 +882,28 @@ class testsllist(unittest.TestCase):
 
         self.assertEqual(gotException, True)
 
+    def test_findnode(self):
+        
+        lst = [1, 2, 3, 4, 5, 4, 3, 2, 1]
+        sl = sllist(lst)
+
+        twoNode = sl.nodeat( sl.index(2) )
+
+        foundNode = sl.findnode(2)
+
+        self.assertEqual(twoNode, foundNode)
+
+    def test_rfindnode(self):
+        
+        lst = [1, 2, 3, 4, 5, 4, 3, 2, 1]
+        sl = sllist(lst)
+
+        twoNode = sl.nodeat( sl.rindex(2) )
+
+        foundNode = sl.rfindnode(2)
+
+        self.assertEqual(twoNode, foundNode)
+
     def test_contains(self):
 
         lst = [1, 5, 7]
@@ -1215,6 +1249,15 @@ class testdllist(unittest.TestCase):
         self.assertRaises(TypeError, ll.insert, 10, 'abc')
         self.assertRaises(TypeError, ll.insert, 10, [])
         self.assertRaises(ValueError, ll.insert, 10, dllistnode())
+
+    def test_insert_ref_value(self):
+        ll = dllist([1, 2, 3, 4, 5])
+
+        ll.insert(2.5, 3)
+        self.assertEqual( [1, 2, 2.5, 3, 4, 5], list(ll) )
+
+        ll.insert(0, 1)
+        self.assertEqual( [0, 1, 2, 2.5, 3, 4, 5], list(ll) )
 
     def test_append(self):
         ll = dllist(py23_xrange(4))
@@ -1709,6 +1752,28 @@ class testdllist(unittest.TestCase):
             gotException = True
 
         self.assertEqual(gotException, True)
+
+    def test_findnode(self):
+        
+        lst = [1, 2, 3, 4, 5, 4, 3, 2, 1]
+        dl = dllist(lst)
+
+        twoNode = dl.nodeat( dl.index(2) )
+
+        foundNode = dl.findnode(2)
+
+        self.assertEqual(twoNode, foundNode)
+
+    def test_rfindnode(self):
+        
+        lst = [1, 2, 3, 4, 5, 4, 3, 2, 1]
+        dl = dllist(lst)
+
+        twoNode = dl.nodeat( dl.rindex(2) )
+
+        foundNode = dl.rfindnode(2)
+
+        self.assertEqual(twoNode, foundNode)
 
     def test_contains(self):
 

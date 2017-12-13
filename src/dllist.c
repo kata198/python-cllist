@@ -284,6 +284,7 @@ PyTypeObject DLListNodeType[] = {
 static PyObject* dllist_node_at(PyObject* self, PyObject* indexObject);
 static DLListNodeObject* dllist_get_node_internal(DLListObject* self, Py_ssize_t index);
 
+static PyObject* dllist_findnode(DLListObject *self, PyObject *value);
 
 /****************
 **** Middle functions
@@ -933,12 +934,16 @@ static PyObject* dllist_insert(DLListObject* self, PyObject* args)
         /* insert item before ref_node */
         if (!PyObject_TypeCheck(ref_node, DLListNodeType))
         {
-            PyErr_SetString(PyExc_TypeError,
-                "ref_node argument must be a dllistnode");
-            return NULL;
+            ref_node = dllist_findnode(self, ref_node);
+            if ( ref_node == NULL || ref_node == Py_None)
+            {
+                PyErr_SetString(PyExc_TypeError,
+                    "ref_node argument must be a dllistnode or a value contained in the list");
+                return NULL;
+            }
         }
 
-        if (((DLListNodeObject*)ref_node)->list_weakref == Py_None)
+        else if (((DLListNodeObject*)ref_node)->list_weakref == Py_None)
         {
             PyErr_SetString(PyExc_ValueError,
                 "dllistnode does not belong to a list");
@@ -1600,6 +1605,30 @@ static PyObject* dllist_index(DLListObject *self, PyObject *value)
     return NULL;
 }
 
+static PyObject* dllist_findnode(DLListObject *self, PyObject *value)
+{
+
+    DLListNodeObject *node;
+    Py_ssize_t idx;
+
+    node = (DLListNodeObject *) self->first;
+    idx = 0;
+
+    while ( (PyObject*)node != Py_None )
+    {
+        if( node->value == value )
+        {
+            Py_INCREF(node);
+            return (PyObject*)node;
+        }
+
+        node = (DLListNodeObject *)node->next;
+        idx += 1;
+    }
+    PyErr_Format(PyExc_ValueError, "No such value in list");
+    return NULL;
+}
+
 static PyObject* dllist_rindex(DLListObject *self, PyObject *value)
 {
 
@@ -1613,6 +1642,30 @@ static PyObject* dllist_rindex(DLListObject *self, PyObject *value)
     {
         if( node->value == value )
             return PyLong_FromSsize_t(idx);
+
+        node = (DLListNodeObject *)node->prev;
+        idx -= 1;
+    }
+    PyErr_Format(PyExc_ValueError, "No such value in list");
+    return NULL;
+}
+
+static PyObject* dllist_rfindnode(DLListObject *self, PyObject *value)
+{
+
+    DLListNodeObject *node;
+    Py_ssize_t idx;
+
+    node = (DLListNodeObject *) self->last;
+    idx = self->size - 1;
+
+    while ( (PyObject*)node != Py_None )
+    {
+        if( node->value == value )
+        {
+            Py_INCREF(node);
+            return (PyObject *)node;
+        }
 
         node = (DLListNodeObject *)node->prev;
         idx -= 1;
@@ -1903,6 +1956,10 @@ static PyMethodDef DLListMethods[] =
       "Inserts element before node" },
     { "index", (PyCFunction)dllist_index, METH_O,
       "Returns the first index of a value" },
+    { "findnode", (PyCFunction)dllist_findnode, METH_O,
+       "Returns the first node from the left containing a given value" },
+    { "rfindnode", (PyCFunction)dllist_rfindnode, METH_O,
+       "Returns the first node from the right containing a given value" },
     { "rindex", (PyCFunction)dllist_rindex, METH_O,
       "Returns the last index of a value" },
     { "nodeat", (PyCFunction)dllist_node_at, METH_O,

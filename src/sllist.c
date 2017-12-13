@@ -16,6 +16,7 @@
         PyObject_HEAD_INIT(type) size,
 #endif
 
+static PyObject* sllist_findnode(SLListObject *self, PyObject *value);
 
 static SLListNodeObject* sllistnode_create(PyObject* next,
                                            PyObject* value,
@@ -632,8 +633,12 @@ static PyObject* sllist_insertafter(SLListObject* self, PyObject* arg)
 
     if (!PyObject_TypeCheck(before, SLListNodeType))
     {
-        PyErr_SetString(PyExc_TypeError, "Argument is not an sllistnode");
-        return NULL;
+        before = sllist_findnode(self, before);
+        if ( before == NULL || before == Py_None )
+        {
+            PyErr_SetString(PyExc_TypeError, "Argument \"ref_node\" is not an sllistnode or a value contained within list.");
+            return NULL;
+        }
     }
 
     if (PyObject_TypeCheck(value, SLListNodeType))
@@ -671,6 +676,8 @@ static PyObject* sllist_insertafter(SLListObject* self, PyObject* arg)
     return (PyObject*)new_node;
 }
 
+/* TODO: Add sllist_insert method */
+
 static PyObject* sllist_insertbefore(SLListObject* self, PyObject* arg)
 {
 
@@ -686,18 +693,22 @@ static PyObject* sllist_insertbefore(SLListObject* self, PyObject* arg)
 
     if (!PyObject_TypeCheck(after, SLListNodeType))
     {
-        PyErr_SetString(PyExc_TypeError, "Argument is not an sllistnode");
-        return NULL;
+        after = sllist_findnode(self, after);
+        if ( !after )
+        {
+            PyErr_SetString(PyExc_TypeError, "Argument \"ref_node\" is not an sllistnode or an element contained within list.");
+            return NULL;
+        }
     }
-    if (PyObject_TypeCheck(value, SLListNodeType))
-        value = ((SLListNodeObject*)value)->value;
-
-    if (after == Py_None)
+    else if (after == Py_None)
     {
         PyErr_SetString(PyExc_ValueError,
             "sllistnode does not belong to a list");
         return NULL;
     }
+    if (PyObject_TypeCheck(value, SLListNodeType))
+        value = ((SLListNodeObject*)value)->value;
+
 
     list_ref = PyWeakref_GetObject(
         ((SLListNodeObject*)after)->list_weakref);
@@ -1418,6 +1429,30 @@ static PyObject* sllist_index(SLListObject *self, PyObject *value)
     return NULL;
 }
 
+static PyObject* sllist_findnode(SLListObject *self, PyObject *value)
+{
+
+    SLListNodeObject *node;
+    Py_ssize_t idx;
+
+    node = (SLListNodeObject *) self->first;
+    idx = 0;
+
+    while ( (PyObject*)node != Py_None )
+    {
+        if( node->value == value )
+        {
+            Py_INCREF(node);
+            return (PyObject*) node;
+        }
+
+        node = (SLListNodeObject *)node->next;
+        idx += 1;
+    }
+    PyErr_Format(PyExc_ValueError, "No such value in list");
+    return NULL;
+}
+
 static PyObject* sllist_rindex(SLListObject *self, PyObject *value)
 {
 
@@ -1440,6 +1475,32 @@ static PyObject* sllist_rindex(SLListObject *self, PyObject *value)
 
     if ( matchedIdx != -1 )
         return PyLong_FromSsize_t(matchedIdx);
+
+    PyErr_Format(PyExc_ValueError, "No such value in list");
+    return NULL;
+}
+
+static PyObject* sllist_rfindnode(SLListObject *self, PyObject *value)
+{
+
+    SLListNodeObject *node, *matchedNode;
+
+    node = (SLListNodeObject *) self->first;
+    matchedNode = NULL;
+
+    while ( (PyObject*)node != Py_None )
+    {
+        if( node->value == value )
+            matchedNode = node;
+
+        node = (SLListNodeObject *)node->next;
+    }
+
+    if ( matchedNode != NULL )
+    {
+        Py_INCREF(matchedNode);
+        return (PyObject*)matchedNode;
+    }
 
     PyErr_Format(PyExc_ValueError, "No such value in list");
     return NULL;
@@ -1662,6 +1723,12 @@ static PyMethodDef SLListMethods[] =
 
     { "rindex", (PyCFunction)sllist_rindex, METH_O,
       "Returns the last index of a value" },
+
+    { "findnode", (PyCFunction)sllist_findnode, METH_O,
+       "Returns the first node from the left containing a given value" },
+
+    { "rfindnode", (PyCFunction)sllist_rfindnode, METH_O,
+       "Returns the first node from the right containing a given value" },
 
     { "pop", (PyCFunction)sllist_pop, METH_VARARGS,
       "Remove an element by index from the list and return it, or last item if no index provided" },
