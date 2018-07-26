@@ -53,3 +53,7 @@ A linked list should be used when you are going to be adding or removing element
 to be reallocated and copied when such happens, whereas this can do so without reallocating.
 
 
+Documentation
+-------------
+
+Documentation can be found at: https://pythonhosted.org/cllist/
